@@ -1,164 +1,153 @@
-# TC Translator - Terminology Controlled Translation System
+# TC Translator (Terminology-Controlled Translator)
 
-A translation system that preserves domain-specific terminology during translation by using controlled glossaries.
-
-## Overview
-
-Terminex wraps Google Translate API with terminology substitution capabilities. It ensures that specialized terms (medical, agricultural, scientific, etc.) are translated consistently using predefined glossaries rather than relying on generic machine translation.
+A Python package that extends Google Translate with terminology control. It first substitutes domain-specific terms with IDs, translates the text, then replaces the IDs with approved translations.
 
 ## Features
-
-- **Domain-specific terminology preservation**: Uses CSV glossaries to maintain accurate translations
-- **Multi-domain support**: Separate glossaries for different domains (agriculture, science, medical, etc.)
-- **Multi-language support**: Automatically detects available languages from CSV filenames
-- **Google Translate API compatible**: Mimics the same API interface for easy integration
-- **Automatic fallback**: Falls back to standard translation for terms not in glossaries
+- Domain-specific terminology control
+- Support for multiple languages and domains
+- Simple API similar to Google Translate
+- CLI interface for quick translations
+- Automatic terminology detection from CSV files
 
 ## Installation
 
 ```bash
-# Clone the repository
-git clone https://github.com/yourusername/tc-translator.git
-cd tc-translator
-
-# Install dependencies
-pip install -r requirements.txt
+git clone https://github.com/yourusername/tc-translate.git
+cd tc-translate
+pip install -e .
 ```
 
-## CSV Glossary Format
+Or install directly:
 
-Place your glossary CSV files in the `glossaries/` directory with the naming convention:
+bash
+
 ```
-{domain}_terms_{language}.csv
+pip install -e git+https://github.com/yourusername/tc-translate.git
 ```
 
-Examples:
-- `agric_terms_twi.csv`
-- `science_terms_ga.csv`
-- `medical_terms_ewe.csv`
 
-CSV structure:
-```csv
-id,term,translation
-1,abattoir,aboa kum fie
-2,acaricide,nkramamoadi kum aduro
-```
 
 ## Usage
 
-### Basic Usage
+### As a Python package:
 
-```python
-from tc-translator import Terminex
+python
 
-# Initialize translator
-translator = Terminex()
-
-# Translate with terminology preservation
-result = translator.translate(
-    "The abattoir uses acaricide for pest control",
-    target_language="twi",
-    domain="agric"
-)
-
-print(result.translated_text)
-print(f"Terms substituted: {result.terms_used}")
 ```
+from tc_translate import TCTranslator
 
-### Available Languages and Domains
+# Initialize translator for agriculture domain in Twi
+translator = TCTranslator(domain='agric', target_lang='twi')
 
-```python
-# Check available languages
-print(translator.available_languages())
-
-# Check available domains
-print(translator.available_domains())
-
-# Check domains for specific language
-print(translator.available_domains(language="twi"))
-```
-
-### Advanced Usage
-
-```python
-# Translate without domain (uses all available glossaries for that language)
-result = translator.translate(
-    "Plant the seeds in the acre-foot area",
-    target_language="twi"
-)
-
-# Translate with source language specification
-result = translator.translate(
-    "Text to translate",
-    source_language="en",
-    target_language="twi",
-    domain="science"
-)
-
-# Get detailed information
-print(result.original_text)
-print(result.translated_text)
-print(result.terms_used)  # List of terms that were substituted
-print(result.source_language)
-print(result.target_language)
-```
-
-### API-Compatible Interface
-
-For compatibility with existing Google Translate code:
-
-```python
-from tc-translator import translate
-
-# Simple translation
-result = translate("The abattoir processes livestock", dest="twi", domain="agric")
+# Translate text with terminology control
+result = translator.translate("The farmer uses an abattoir and acreage for farming.")
 print(result.text)
-
-# Batch translation
-texts = ["abattoir management", "acaricide application"]
-results = translate(texts, dest="twi", domain="agric")
-for r in results:
-    print(r.text)
 ```
 
-## How It Works
 
-1. **Preprocessing**: Scans input text for terms in the glossary and replaces them with unique placeholders `<1>`, `<2>`, etc.
-2. **Translation**: Sends the placeholder-filled text to Google Translate
-3. **Post-processing**: Replaces placeholders in the translated text with the corresponding terminology translations from the CSV
 
-## Directory Structure
+### Command Line Interface:
+
+bash
 
 ```
-tc-translator/
-├── tc-translator/
-│   ├── __init__.py
-│   ├── translator.py
-│   ├── glossary_manager.py
-│   └── utils.py
-├── glossaries/
-│   ├── agric_terms_twi.csv
-│   ├── science_terms_twi.csv
-│   └── ...
-├── tests/
-│   └── test_translator.py
-├── examples/
-│   └── basic_usage.py
-├── requirements.txt
-├── setup.py
-└── README.md
+# Basic translation
+tc-translate "The farmer uses an abattoir" --domain agric --target twi
+
+# From file
+tc-translate --input text.txt --domain science --target twi
+
+# List available domains and languages
+tc-translate --list
 ```
 
-## Requirements
 
-- Python 3.7+
-- googletrans==4.0.0rc1 (or googletrans-py==4.0.0)
-- pandas
 
-## Contributing
+### Using the Google Translate-like API:
 
-Contributions are welcome! Please feel free to submit glossary files for additional languages and domains.
+python
 
-## License
+```
+from tc_translate import Translator
 
-MIT License
+translator = Translator()
+result = translator.translate("abattoir and acreage", src='en', dest='twi', domain='agric')
+print(result.text)
+```
+
+
+
+## Terminology Files
+
+Add your terminology CSV files in the `terminologies/` directory with naming convention:
+`{domain}_terms_{language}.csv`
+
+CSV format:
+
+csv
+
+```
+id,term,translation
+1,abattoir,aboa kum fie
+2,aboiteau,nsu ban ɔkwan
+...
+```
+
+
+
+## Language Code Support
+
+TC Translator supports both 3-letter (ISO 639-3) and 2-letter (ISO 639-1)  language codes. The system automatically converts between them:
+
+### Using 3-letter codes:
+
+python
+
+```
+# Your terminology files: agric_terms_twi.csv
+translator = TCTranslator(domain='agric', target_lang='twi')
+```
+
+
+
+### Using 2-letter Google codes:
+
+python
+
+```
+# Same terminology file, but using Google's code
+translator = TCTranslator(domain='agric', target_lang='ak')
+```
+
+
+
+### Common Language Mappings:
+
+- `twi` → `ak` (Akan/Twi)
+- `fra` → `fr` (French)
+- `deu` → `de` (German)
+- `spa` → `es` (Spanish)
+- `yor` → `yo` (Yoruba)
+
+### Check supported languages:
+
+bash
+
+```
+# List all available domains and languages
+tc-translate list
+
+# Get information about a language code
+tc-translate langinfo twi
+```
+
+
+
+### Terminology File Naming:
+
+Name your terminology files using either format:
+
+- `{domain}_terms_{3-letter-code}.csv` (e.g., `agric_terms_twi.csv`)
+- `{domain}_terms_{2-letter-code}.csv` (e.g., `agric_terms_ak.csv`)
+
+The system will automatically detect and convert between codes as needed.
