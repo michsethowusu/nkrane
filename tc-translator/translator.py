@@ -132,7 +132,9 @@ class Terminex:
         # For now, pass through as-is
         # Example: {'twi': 'tw', 'ga': 'gaa'}
         code_mapping = {
-            'twi': 'tw',  # Twi (Akan)
+            'twi': 'ak',  # Twi (Akan)
+            'ewe': 'ee',  # Twi (Akan)
+            'ga': 'gaa',  # Twi (Akan)
             # Add more mappings as needed
         }
         return code_mapping.get(code.lower(), code.lower())
