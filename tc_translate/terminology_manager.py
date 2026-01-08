@@ -48,7 +48,7 @@ class TerminologyManager:
         current_dir = os.getcwd()
         for filename in os.listdir(current_dir):
             if filename.startswith('terminologies_') and filename.endswith('.csv'):
-                return os.path.join(current_dir, filename
+                return os.path.join(current_dir, filename)
         
         # Look in parent directory (for development)
         parent_dir = os.path.dirname(current_dir)
@@ -98,14 +98,47 @@ class TerminologyManager:
             return convert_lang_code(language, to_google=True)
         return self.google_lang_code
     
-    def preprocess_text(self, text: str) -> Tuple[str, Dict[str, Term]]:
+    def _match_case(self, original: str, replacement: str) -> str:
+        """Match the case pattern of the original text.
+        
+        Args:
+            original: The original text that was matched
+            replacement: The replacement text from terminology
+            
+        Returns:
+            Replacement text with matched case pattern
+        """
+        # If original is all uppercase
+        if original.isupper():
+            return replacement.upper()
+        
+        # If original is all lowercase
+        if original.islower():
+            return replacement.lower()
+        
+        # If original is title case (first letter capitalized)
+        if original.istitle():
+            return replacement.capitalize()
+        
+        # If original has first letter capitalized (sentence case)
+        if original[0].isupper() and original[1:].islower():
+            return replacement.capitalize()
+        
+        # If original is mixed case, preserve the replacement's original case
+        # but capitalize first letter if original starts with capital
+        if original[0].isupper():
+            return replacement.capitalize()
+        
+        return replacement.lower()
+    
+    def preprocess_text(self, text: str) -> Tuple[str, Dict[str, Term], Dict[str, str]]:
         """Replace terms in text with their IDs.
         
         Args:
             text: Input text
             
         Returns:
-            Tuple of (preprocessed_text, id_to_term_mapping)
+            Tuple of (preprocessed_text, id_to_term_mapping, original_case_mapping)
         """
         if not self.terms:
             raise ValueError(f"No terminology loaded for language '{self.language}'")
@@ -115,30 +148,46 @@ class TerminologyManager:
         
         preprocessed_text = text
         replacements = {}  # Map of placeholder to term
+        original_cases = {}  # Map of placeholder to original text for case matching
         
         for term_obj in sorted_terms:
-            # Case-insensitive replacement with word boundaries
-            pattern = re.compile(r'\b' + re.escape(term_obj.term) + r'\b', re.IGNORECASE)
+            # Case-insensitive replacement with word boundaries, but capture original case
+            pattern = re.compile(r'\b(' + re.escape(term_obj.term) + r')\b', re.IGNORECASE)
             
             def replace_with_placeholder(match):
+                original_text = match.group(1)
                 placeholder = f"<{term_obj.id}>"
                 replacements[placeholder] = term_obj
+                original_cases[placeholder] = original_text  # Store original case
                 return placeholder
             
             preprocessed_text = pattern.sub(replace_with_placeholder, preprocessed_text)
         
-        return preprocessed_text, replacements
+        return preprocessed_text, replacements, original_cases
     
-    def postprocess_text(self, text: str, replacements: Dict[str, Term]) -> str:
-        """Replace IDs in translated text with their translations.
+    def postprocess_text(self, text: str, replacements: Dict[str, Term], 
+                        original_cases: Dict[str, str]) -> str:
+        """Replace IDs in translated text with their translations, preserving original case.
         
         Args:
             text: Translated text with placeholders
             replacements: Mapping from placeholders to Term objects
+            original_cases: Mapping from placeholders to original text for case matching
             
         Returns:
-            Postprocessed text with actual translations
+            Postprocessed text with actual translations and matched case
         """
         for placeholder, term_obj in replacements.items():
-            text = text.replace(placeholder, term_obj.translation)
+            original_text = original_cases.get(placeholder, '')
+            if original_text:
+                # Match the case of the original text
+                matched_case_translation = self._match_case(
+                    original_text, 
+                    term_obj.translation
+                )
+                text = text.replace(placeholder, matched_case_translation)
+            else:
+                # Fallback to original translation if no case info
+                text = text.replace(placeholder, term_obj.translation)
+        
         return text
