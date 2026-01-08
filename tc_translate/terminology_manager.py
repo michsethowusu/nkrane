@@ -21,8 +21,8 @@ class TerminologyManager:
         
         Args:
             csv_path: Path to the terminology CSV file. 
-                     Defaults to 'terminologies_{lang}.csv' in current directory.
-                     If None, looks for terminologies_{lang}.csv in repo root.
+                     If None, looks for terminologies_{lang}.csv in terminologies/ folder
+                     inside the package directory.
         """
         self.csv_path = csv_path
         self.terms = {}  # Dictionary of terms for the language
@@ -35,13 +35,22 @@ class TerminologyManager:
         if self.csv_path and os.path.exists(self.csv_path):
             return self.csv_path
             
-        # Look for terminologies_*.csv in current directory
+        # Look in terminologies/ folder inside package directory (for installed packages)
+        package_dir = os.path.dirname(os.path.abspath(__file__))
+        terminologies_dir = os.path.join(package_dir, 'terminologies')
+        
+        if os.path.exists(terminologies_dir):
+            for filename in os.listdir(terminologies_dir):
+                if filename.startswith('terminologies_') and filename.endswith('.csv'):
+                    return os.path.join(terminologies_dir, filename)
+        
+        # Look in current directory (for development)
         current_dir = os.getcwd()
         for filename in os.listdir(current_dir):
             if filename.startswith('terminologies_') and filename.endswith('.csv'):
-                return os.path.join(current_dir, filename)
+                return os.path.join(current_dir, filename
         
-        # Look in parent directory (in case we're in a subdirectory)
+        # Look in parent directory (for development)
         parent_dir = os.path.dirname(current_dir)
         for filename in os.listdir(parent_dir):
             if filename.startswith('terminologies_') and filename.endswith('.csv'):
@@ -49,7 +58,7 @@ class TerminologyManager:
         
         raise FileNotFoundError(
             "No terminology CSV file found. Looking for 'terminologies_{lang}.csv' "
-            f"in {current_dir} or {parent_dir}"
+            f"in terminologies/ folder ({terminologies_dir}), {current_dir}, or {parent_dir}"
         )
     
     def _load_terminologies(self):
