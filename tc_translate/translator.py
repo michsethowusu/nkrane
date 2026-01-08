@@ -88,13 +88,22 @@ class TCTranslator:
         logger.debug(f"Source language (Google): {self.src_lang_google}")
         logger.debug(f"Target language (Google): {self.target_lang_google}")
         
-        # Step 2: Translate with Google Translate (async)
+        # Step 2: Translate with Google Translate (async) - Two-step process
         try:
             # Create translator instance INSIDE the async context
             async with GoogleTranslator() as translator:
-                google_result = await translator.translate(
+                # First translation: English → Thai
+                thai_result = await translator.translate(
                     preprocessed_text,
                     src=self.src_lang_google,
+                    dest='th',
+                    **kwargs
+                )
+                
+                # Second translation: Thai → destination language
+                google_result = await translator.translate(
+                    thai_result.text,
+                    src='th',
                     dest=self.target_lang_google,
                     **kwargs
                 )
@@ -116,6 +125,7 @@ class TCTranslator:
                     'original': text,
                     'preprocessed': preprocessed_text,
                     'google_translation': google_result.text,
+                    'intermediate_thai': thai_result.text,
                     'replacements_count': len(replacements),
                     'src_google': self.src_lang_google,
                     'dest_google': self.target_lang_google
@@ -212,24 +222,35 @@ class Translator:
             )
             return await tc_translator._translate_async(text, **kwargs)
         else:
-            # Use regular Google Translate (async)
+            # Use regular Google Translate (async) - Two-step process
             async with GoogleTranslator() as translator:
                 src_google = convert_lang_code(src, to_google=True)
                 dest_google = convert_lang_code(dest, to_google=True)
                 
-                result = await translator.translate(
+                # First translation: English → Thai
+                thai_result = await translator.translate(
                     text, 
                     src=src_google, 
-                    dest=dest_google, 
+                    dest='th', 
                     **kwargs
                 )
+                
+                # Second translation: Thai → destination language
+                result = await translator.translate(
+                    thai_result.text,
+                    src='th',
+                    dest=dest_google,
+                    **kwargs
+                )
+                
                 return {
                     'text': result.text,
                     'src': src,
                     'dest': dest,
                     'src_google': src_google,
                     'dest_google': dest_google,
-                    'original': text
+                    'original': text,
+                    'intermediate_thai': thai_result.text
                 }
     
     def translate(self, text: str, src: str = 'en', dest: str = 'twi', 
