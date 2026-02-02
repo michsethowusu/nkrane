@@ -1,11 +1,7 @@
-# setup.py
 from setuptools import setup, find_packages
 
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
-
-with open("requirements.txt", "r", encoding="utf-8") as fh:
-    requirements = [line.strip() for line in fh if line.strip() and not line.startswith("#")]
 
 setup(
     name="nkrane",
@@ -32,7 +28,13 @@ setup(
         "Topic :: Text Processing :: Linguistic",
     ],
     python_requires=">=3.7",
-    install_requires=requirements,
+    install_requires=[
+        "git+https://github.com/michsethowusu/py-googletrans",
+        "pandas>=1.3.0",
+        "spacy>=3.0.0",
+        "aiohttp>=3.8.0",
+        "requests>=2.28.0",
+    ],
     include_package_data=True,
     package_data={
         "nkrane": ["sample_terminology.csv"],
