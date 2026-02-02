@@ -126,12 +126,6 @@ id,term,translation,domain,language
 3,hospital,ayaresabea,health,en
 ```
 
-- **id**: Unique identifier (integer)
-- **term**: English term (lowercase recommended)
-- **translation**: Target language translation
-- **domain**: Category (optional, default: "general")
-- **language**: Source language (default: "en")
-
 ### Multiple Terminology Files
 
 You can load multiple CSV files from a directory:
@@ -145,18 +139,11 @@ translator = NkraneTranslator(
 
 ## Language Support
 
-Nkrane supports all languages available in Google Translate. For African languages, it uses appropriate language code conversions:
+Nkrane supports all languages available in Google Translate. For Ghanaian languages, it uses appropriate language code conversions:
 
 - English → Twi: `target_lang='twi'` or `target_lang='ak'`
-- English → Hausa: `target_lang='hau'` or `target_lang='ha'`
-- English → Yoruba: `target_lang='yor'` or `target_lang='yo'`
-
-## Performance Tips
-
-1. **Batch Processing**: Use `batch_translate_sync()` for multiple texts
-2. **Terminology Size**: Keep terminology files focused on domain-specific terms
-3. **Caching**: Implement your own caching for frequently translated phrases
-4. **Network**: Ensure stable internet connection for Google Translate API calls
+- English → Ewe: `target_lang='ewe'` or `target_lang='ee'`
+- English → Ga: `target_lang='gaa'` or `target_lang='gaa'` # Ga uses three code for iso-2
 
 ## Limitations
 
