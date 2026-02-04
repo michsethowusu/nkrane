@@ -245,5 +245,5 @@ MIT License - see [LICENSE](LICENSE) file.
 
 ## 📧 Contact
 
-- Issues: [GitHub Issues](https://github.com/yourusername/nkrane-gt/issues)
+- Issues: [GitHub Issues](https://github.com/ghananlp/nkrane-gt/issues)
 - Email: natural.language.processing.gh@gmail.com
