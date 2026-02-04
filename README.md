@@ -46,7 +46,7 @@ Standard machine translation often struggles with:
 ### From Source
 
 ```bash
-git clone https://github.com/yourusername/nkrane-gt.git
+git clone https://github.com/ghananlp/nkrane-gt.git
 cd nkrane-gt
 pip install -e .
 ```
