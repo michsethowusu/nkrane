@@ -158,19 +158,6 @@ Input: "I want to buy a house."
 Output: "Me pɛ sɛ metɔ efie."
 ```
 
-### Key Innovations
-
-**Stopword Preservation**
-- Old: "a house" → `<1>` → translated stopword in wrong position
-- New: "a house" → "a `<1>`" → stopword translated naturally by Google
-
-**Case Matching**
-- Input: "House" → Output: "Ofie"
-- Input: "house" → Output: "ofie"
-- Input: "HOUSE" → Output: "OFIE"
-
----
-
 ## 🛠️ Advanced Usage
 
 ### CLI Commands
