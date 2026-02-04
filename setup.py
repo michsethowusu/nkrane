@@ -8,11 +8,11 @@ setup(
     name="nkrane-gt",
     version="0.2.0",
     author="Your Name",
-    author_email="your.email@example.com",
+    author_email="natural.language.processing.gh@gmail.com",
     description="Enhanced Machine Translation with Terminology Control for Google Translate",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/yourusername/nkrane",
+    url="https://github.com/ghananlp/nkrane",
     packages=find_packages(),
     package_dir={'nkrane_gt': 'nkrane_gt'},
     package_data={
@@ -30,7 +30,7 @@ setup(
     ],
     python_requires=">=3.7",
     install_requires=[
-        "googletrans==4.0.0-rc1",
+        "requests>=2.28.0",
         "spacy>=3.0.0",
         "pandas>=1.0.0",
     ],
