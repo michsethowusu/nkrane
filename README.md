@@ -153,9 +153,9 @@ Input: "I want to buy a house."
    → "Me pɛ sɛ metɔ <1>."
          ↓
 5. Postprocessing (case-matched)
-   → "Me pɛ sɛ metɔ ofie."
+   → "Me pɛ sɛ metɔ efie."
          ↓
-Output: "Me pɛ sɛ metɔ ofie."
+Output: "Me pɛ sɛ metɔ efie."
 ```
 
 ### Key Innovations
